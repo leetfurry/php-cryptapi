@@ -2,6 +2,7 @@
 
 namespace CryptAPI;
 use Exception;
+require_once 'Requests/src/Autoload.php';
 
 class CryptAPI {
     private static $base_url = "https://api.cryptapi.io";
@@ -190,7 +191,7 @@ class CryptAPI {
     }
 
     private static function _request($coin, $endpoint, $params = [], $assoc = false) {
-        $base_url = Cryptapi::$base_url;
+        $base_url = CryptAPI::$base_url;
         $coin = str_replace('_', '/', $coin);
 
         if (!empty($params)) $data = http_build_query($params);
@@ -204,12 +205,9 @@ class CryptAPI {
 
         if (!empty($data)) $url .= "?{$data}";
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $response = curl_exec($ch);
-        curl_close($ch);
+        WpOrg\Requests\Autoload::register();
+        $response = WpOrg\Requests\Requests::get($url);
 
-        return json_decode($response, $assoc);
+        return json_decode($response->body, $assoc);
     }
 }
